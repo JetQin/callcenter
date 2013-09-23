@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-7-23 11:14:04 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+	<class name="com.egoonet.callcenter.model.AgentGroup" table="AGENTGROUP">
+		<id name="groupID" type="int" access="field">
+			<column name="GROUPID" />
+			<generator class="native" />
+		</id>
+		<property name="groupName" type="java.lang.String" access="field">
+			<column name="GROUPNAME" />
+		</property>
+		<property name="groupDescription" type="java.lang.String"
+			access="field">
+			<column name="GROUPDESCRIPTION" />
+		</property>
+		<set name="agents" table="GROUP_AGENT" inverse="true" cascade="save-update"
+			lazy="true" access="field">
+			<key>
+				<column name="GROUPID"></column>
+			</key>
+			<many-to-many column="AGENTID"
+				class="com.egoonet.callcenter.model.Agent" />
+		</set>
+		<list name="region" inverse="true" table="REGION" lazy="true"
+			access="field" cascade="all">
+			<key>
+				<column name="GROUPID" />
+			</key>
+			<list-index column="REGIONID"></list-index>
+			<one-to-many class="com.egoonet.callcenter.model.Region" />
+		</list>
+		<set name="queues" table="GROUP_QUEUE" inverse="true" cascade="all"
+			lazy="true" access="field">
+			<key>
+				<column name="GROUPID" />
+			</key>
+			<many-to-many column="QUEUEID"
+				class="com.egoonet.callcenter.model.AgentQueue" />
+		</set>
+	</class>
+</hibernate-mapping>

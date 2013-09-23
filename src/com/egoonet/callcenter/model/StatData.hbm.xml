@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-7-24 19:34:11 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.egoonet.callcenter.model.StatData" table="STATDATA" abstract="true">
+        <id name="id" type="int">
+            <column name="ID" />
+            <generator class="native" />
+        </id>
+        <discriminator column="STATTYPE"></discriminator>
+        <property name="rangevalue" type="int">
+            <column name="RANGEVALUE" />
+        </property>
+        <property name="referenceID" type="int">
+            <column name="REFERENCEID" />
+        </property>
+        <property name="statvalue" type="double">
+            <column name="STATVALUE" />
+        </property>
+        <property name="subscribeType" type="java.lang.String">
+            <column name="SUBSCRIBETYPE" />
+        </property>
+        <property name="subscribeName" type="java.lang.String">
+            <column name="SUBSCRIBENAME" />
+        </property>
+        <property name="properties" type="java.lang.String">
+            <column name="PROPERTIES" />
+        </property>
+        <property name="createTime" type="java.util.Date">
+            <column name="CREATETIME" />
+        </property>
+        <property name="updateTime" type="java.util.Date">
+            <column name="UPDATETIME" />
+        </property>
+        <subclass name="com.egoonet.callcenter.model.AgentStatistics" discriminator-value="AGENT"></subclass>
+        <subclass name="com.egoonet.callcenter.model.GroupStatistics" discriminator-value="GROUP"></subclass>
+        <subclass name="com.egoonet.callcenter.model.QueueStatistics" discriminator-value="QUEUE"></subclass>
+  
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="  
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:conf.properties" />
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:hibernate.cfg.xml" />
+	</bean>
+
+	<!-- data access service -->
+	<bean id="statService" class="com.egoonet.callcenter.service.StatService">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+		<property name="sql" value="from StatData where referenceID = :id"></property>
+	</bean>
+
+	<bean id="statAgentDataService" class="com.egoonet.callcenter.service.StatService">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+		<property name="sql" value="from AgentStatistis where referenceID = :id"></property>
+		<property name="subscribe" value="select agentNo from Agent"></property>
+		<property name="deleteAllSQL"
+			value="delete from AgentStatistics where referenceID > 0 "></property>
+	</bean>
+
+	<bean id="statGroupDataService" class="com.egoonet.callcenter.service.StatService">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+		<property name="sql" value="from GroupStatistis where referenceID = :id"></property>
+		<property name="subscribe" value="select groupName from AgentGroup"></property>
+		<property name="deleteAllSQL"
+			value="delete from GroupStatistics where referenceID > 0 "></property>
+	</bean>
+
+	<bean id="statQueueDataService" class="com.egoonet.callcenter.service.StatService">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	    <property name="sql" value="from QueueStatistics where referenceID = :id"></property>
+		<property name="subscribe" value="select queueName from AgentQueue"></property>
+		<property name="deleteAllSQL"
+			value="delete from QueueStatistics where referenceID > 0 "></property>
+	</bean>
+
+
+	<!-- thread pool executor -->
+	<bean id="subscribeExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
+		scope="prototype">
+		<property name="corePoolSize" value="1000" />
+		<property name="maxPoolSize" value="2000" />
+		<property name="queueCapacity" value="1000" />
+		<property name="keepAliveSeconds" value="6000" />
+
+	</bean>
+	<bean id="processExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
+		scope="prototype">
+		<property name="corePoolSize" value="1000" />
+		<property name="maxPoolSize" value="2000" />
+		<property name="queueCapacity" value="1000" />
+		<property name="keepAliveSeconds" value="6000" />
+	</bean>
+
+	<bean id="scheduledTask" class="org.springframework.scheduling.timer.TimerTaskExecutor">
+		<property name="delay" value="5000" />
+	</bean>
+
+	<!-- message process task -->
+	<bean id="processTask"
+		class="com.egoonet.callcenter.controller.statserver.ProcessMessageTask">
+		<property name="service" ref="statService"></property>
+	</bean>
+
+	<bean id="processDefinitionTask"
+		class="com.egoonet.callcenter.controller.statserver.ProcessSelfDefinitionMessageTask">
+		<property name="service" ref="statService"></property>
+		<property name="definitionQueueMsg" value="${queue.definition.msg}"></property>
+		<property name="definitionGroupMsg" value="${group.definition.msg}"></property>
+		<property name="queueValue"
+			value="from QueueStatistics where subscribeName = :targetName and referenceID > 0"></property>
+		<property name="groupValue"
+			value="from GroupStatistics where subscribeName = :targetName and  referenceID > 0"></property>
+	</bean>
+
+	<!-- subscribe message task -->
+	<bean id="subscribeAgentMessage"
+		class="com.egoonet.callcenter.controller.statserver.SubscribeMessage">
+		<property name="staticsType" value="AGENT"></property>
+		<property name="referenceID" value="1000000"></property>
+		<property name="tenantName" value="${server.tenantName}"></property>
+		<property name="timeprofile" value="${server.timeprofile}"></property>
+		<property name="notification" value="${server.notification}"></property>
+		<property name="filter" value="${server.agent.filter}"></property>
+		<property name="timerange" value="${server.timerange}"></property>
+	</bean>
+
+	<bean id="subscribeGroupMessage"
+		class="com.egoonet.callcenter.controller.statserver.SubscribeMessage">
+		<property name="staticsType" value="GROUP"></property>
+		<property name="referenceID" value="2000000"></property>
+		<property name="tenantName" value="${server.tenantName}"></property>
+		<property name="timeprofile" value="${server.timeprofile}"></property>
+		<property name="notification" value="${server.notification}"></property>
+		<property name="filter" value="${server.group.filter}"></property>
+		<property name="timerange" value="${server.timerange}"></property>
+	</bean>
+
+	<bean id="subscribeQueueMessage"
+		class="com.egoonet.callcenter.controller.statserver.SubscribeMessage">
+		<property name="staticsType" value="QUEUE"></property>
+		<property name="referenceID" value="3000000"></property>
+		<property name="tenantName" value="${server.tenantName}"></property>
+		<property name="timeprofile" value="${server.timeprofile}"></property>
+		<property name="notification" value="${server.notification}"></property>
+		<property name="filter" value="${server.queue.filter}"></property>
+		<property name="timerange" value="${server.timerange}"></property>
+	</bean>
+
+	<!-- statistics -->
+	<bean id="agentStatistics" class="com.egoonet.callcenter.model.AgentStatistics"></bean>
+	<bean id="groupStatistics" class="com.egoonet.callcenter.model.GroupStatistics"></bean>
+	<bean id="queueStatistics" class="com.egoonet.callcenter.model.QueueStatistics"></bean>
+
+	<bean id="subscribeAgentTask"
+		class="com.egoonet.callcenter.controller.statserver.SubscribeMessageTask">
+		<property name="subscribeMsgs" value="${agent.msg}"></property>
+		<property name="msg">
+			<ref bean="subscribeAgentMessage" />
+		</property>
+		<property name="service">
+			<ref bean="statAgentDataService" />
+		</property>
+		<property name="data">
+			<ref bean="agentStatistics" />
+		</property>
+	</bean>
+
+	<bean id="subscribeGroupTask"
+		class="com.egoonet.callcenter.controller.statserver.SubscribeMessageTask">
+		<property name="subscribeMsgs" value="${group.msg}"></property>
+		<property name="msg">
+			<ref bean="subscribeGroupMessage" />
+		</property>
+		<property name="service">
+			<ref bean="statGroupDataService" />
+		</property>
+		<property name="data">
+			<ref bean="groupStatistics" />
+		</property>
+	</bean>
+
+	<bean id="subscribeQueueTask"
+		class="com.egoonet.callcenter.controller.statserver.SubscribeMessageTask">
+		<property name="subscribeMsgs" value="${queue.msg}"></property>
+		<property name="msg">
+			<ref bean="subscribeQueueMessage" />
+		</property>
+		<property name="service">
+			<ref bean="statQueueDataService" />
+		</property>
+		<property name="data">
+			<ref bean="queueStatistics" />
+		</property>
+	</bean>
+
+	<!-- config parameter -->
+	<bean id="statParameter" class="com.egoonet.callcenter.conf.ConfigParameter">
+		<property name="uriServer" value="${server.uri}"></property>
+		<property name="opentime" value="${server.opentime}"></property>
+		<property name="timeout" value="${server.timeout}"></property>
+	</bean>
+
+	<bean id="confParameter" class="com.egoonet.callcenter.conf.ConfigParameter">
+		<property name="uriServer" value="${conf.server.uri}"></property>
+		<property name="opentime" value="${conf.server.opentime}"></property>
+		<property name="timeout" value="${conf.server.timeout}"></property>
+		<property name="clientName" value="${conf.server.clientName}"></property>
+		<property name="userName" value="${conf.server.userName}"></property>
+		<property name="password" value="${conf.server.password}"></property>
+		<property name="port" value="${conf.server.port}"></property>
+	</bean>
+</beans>

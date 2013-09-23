@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-7-23 11:14:04 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+	<class name="com.egoonet.callcenter.model.Agent" table="AGENT">
+		<id name="agentID" type="int">
+			<column name="AGENTID" />
+			<generator class="native" />
+		</id>
+		<property name="agentName" type="java.lang.String">
+			<column name="AGENTNAME" />
+		</property>
+		<property name="agentAlias" type="java.lang.String">
+			<column name="AGENTALIAS" />
+		</property>
+		<property name="agentNo" type="java.lang.String">
+			<column name="AGENTNO" />
+		</property>
+		<property name="agentStatus">
+			<column name="AGENTSTATUS" />
+			<type name="org.hibernate.type.EnumType">
+				<param name="type">12</param>
+				<param name="enumClass">com.egoonet.callcenter.model.AgentStatus</param>
+			</type>
+		</property>
+		<set name="groups" table="GROUP_AGENT" inverse="true" cascade="all"
+			lazy="true" access="field">
+			<key>
+				<column name="AGENTID" />
+			</key>
+			<many-to-many column="GROUPID"
+				class="com.egoonet.callcenter.model.AgentGroup" />
+		</set>
+	</class>
+</hibernate-mapping>

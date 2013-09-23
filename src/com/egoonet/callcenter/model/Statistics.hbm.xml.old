@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-7-24 19:05:08 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.egoonet.callcenter.model.Statistics" table="STATISTICS" abstract="true">
+        <id name="id" type="int">
+            <column name="ID" />
+            <generator class="native" />
+        </id>
+        <discriminator type="string">
+            <column name="DISCR_COL" />
+        </discriminator>
+        <property name="range" type="int">
+            <column name="RANGE" />
+        </property>
+        <property name="referenceID" type="int">
+            <column name="REFERENCEID" />
+        </property>
+        <property name="value" type="double">
+            <column name="VALUE" />
+        </property>
+        <property name="subscribeType" type="java.lang.String">
+            <column name="SUBSCRIBETYPE" />
+        </property>
+        <property name="subscribeName" type="java.lang.String">
+            <column name="SUBSCRIBENAME" />
+        </property>
+        <property name="properties" type="java.lang.String">
+            <column name="PROPERTIES" />
+        </property>
+        <property name="createTime" type="java.util.Date">
+            <column name="CREATETIME" />
+        </property>
+        <property name="updateTime" type="java.util.Date">
+            <column name="UPDATETIME" />
+        </property>
+        <union-subclass name="com.egoonet.callcenter.model.AgentStatistics" table="AGENTSTATISTICS">
+        </union-subclass>
+        <union-subclass name="com.egoonet.callcenter.model.GroupStatistics" table="GROUPSTATISTICS">
+        </union-subclass>
+        <union-subclass name="com.egoonet.callcenter.model.QueueStatistics" table="QUEUESTATISTICS">
+        </union-subclass>
+    </class>
+</hibernate-mapping>

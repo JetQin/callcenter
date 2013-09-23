@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-7-23 11:14:04 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.egoonet.callcenter.model.AgentQueue" table="AGENTQUEUE">
+        <id name="queueID" type="int" access="field">
+            <column name="QUEUEID" />
+            <generator class="native" />
+        </id>
+        <property name="queueName" type="java.lang.String" access="field">
+            <column name="QUEUENAME" />
+        </property>
+        <property name="queueDescription" type="java.lang.String" access="field">
+            <column name="QUEUEDESCRIPTION" />
+        </property>
+        <set name="groups" table="GROUP_QUEUE" inverse="false" lazy="true" access="field">
+            <key>
+                <column name="QUEUEID" />
+            </key>
+            <many-to-many column="GROUPID" class="com.egoonet.callcenter.model.AgentGroup" />
+        </set>
+        <list name="regions" inverse="false" table="REGION" lazy="true" access="field">
+            <key>
+                <column name="QUEUEID" />
+            </key>
+            <index column="REGIONID"></index>
+            <one-to-many class="com.egoonet.callcenter.model.Region" />
+        </list>
+    </class>
+</hibernate-mapping>

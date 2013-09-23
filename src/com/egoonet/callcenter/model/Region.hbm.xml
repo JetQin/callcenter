@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-7-23 11:14:04 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.egoonet.callcenter.model.Region" table="REGION">
+        <id name="regionID" type="int" access="field">
+            <column name="REGIONID" />
+            <generator class="native" />
+        </id>
+        <property name="regionName" type="java.lang.String" access="field">
+            <column name="REGIONNAME" />
+        </property>
+        <property name="regionDescription" type="java.lang.String" access="field">
+            <column name="REGIONDESCRIPTION" />
+        </property>
+        <property name="createTime" type="java.util.Date" access="field">
+            <column name="CREATETIME" />
+        </property>
+        <property name="updateTime" type="java.util.Date" access="field">
+            <column name="UPDATETIME" />
+        </property>
+    </class>
+</hibernate-mapping>
