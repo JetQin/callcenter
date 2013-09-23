@@ -33,7 +33,7 @@
 		<property name="sql" value="from AgentStatistis where referenceID = :id"></property>
 		<property name="subscribe" value="select agentNo from Agent"></property>
 		<property name="deleteAllSQL"
-			value="delete from AgentStatistics where referenceID > 0 "></property>
+			value="delete from AgentStatistics where referenceID != 0 "></property>
 	</bean>
 
 	<bean id="statGroupDataService" class="com.egoonet.callcenter.service.StatService">
@@ -41,15 +41,15 @@
 		<property name="sql" value="from GroupStatistis where referenceID = :id"></property>
 		<property name="subscribe" value="select groupName from AgentGroup"></property>
 		<property name="deleteAllSQL"
-			value="delete from GroupStatistics where referenceID > 0 "></property>
+			value="delete from GroupStatistics where referenceID != 0 "></property>
 	</bean>
 
 	<bean id="statQueueDataService" class="com.egoonet.callcenter.service.StatService">
 		<property name="sessionFactory" ref="sessionFactory"></property>
-	    <property name="sql" value="from QueueStatistics where referenceID = :id"></property>
+		<property name="sql" value="from QueueStatistics where referenceID = :id"></property>
 		<property name="subscribe" value="select queueName from AgentQueue"></property>
 		<property name="deleteAllSQL"
-			value="delete from QueueStatistics where referenceID > 0 "></property>
+			value="delete from QueueStatistics where referenceID != 0 "></property>
 	</bean>
 
 
@@ -75,6 +75,13 @@
 	<bean id="scheduledTask" class="org.springframework.scheduling.timer.TimerTaskExecutor">
 		<property name="delay" value="5000" />
 	</bean>
+	
+	<bean id="scheduledExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1000" />
+		<property name="maxPoolSize" value="2000" />
+		<property name="queueCapacity" value="1000" />
+		<property name="keepAliveSeconds" value="6000" />
+	</bean>
 
 	<!-- message process task -->
 	<bean id="processTask"
@@ -91,6 +98,31 @@
 			value="from QueueStatistics where subscribeName = :targetName and referenceID > 0"></property>
 		<property name="groupValue"
 			value="from GroupStatistics where subscribeName = :targetName and  referenceID > 0"></property>
+	</bean>
+
+	<bean id="quartzJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="processDefinitionTask" />
+		</property>
+		<property name="targetMethod">  
+			<value>execute</value>
+		</property>
+	</bean>
+
+	<bean id="cronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="quartzJob"></property>
+		<property name="cronExpression" value="0/30 * * * * ?"></property>
+	</bean>
+
+	<bean id="quartzFactory"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTriggerBean" />
+			</list>
+		</property>
+		<property name="taskExecutor" ref="scheduledExecutor"/>
 	</bean>
 
 	<!-- subscribe message task -->
